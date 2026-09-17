@@ -1,0 +1,7 @@
+vocab_size,embedding_dim,context_block_size,batch_size,learning_rate,val_loss,train_time_seconds
+50,16,8,32,0.01,2.45,30
+50,32,8,32,0.01,2.10,55
+50,64,16,32,0.01,1.85,120
+100,32,8,64,0.001,1.95,70
+100,64,16,64,0.001,1.60,200
+100,128,32,64,0.001,1.40,500

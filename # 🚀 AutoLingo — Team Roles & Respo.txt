@@ -1,0 +1,168 @@
+# 🚀 AutoLingo — Team Roles & Responsibilities
+
+> **Project:** AI-Powered Smart Text Autocomplete Engine
+> **Core Architecture:** PyTorch Embedding-to-Linear Predictor (upgradable to Transformer Blocks)
+> **Syllabus Integration:** Semi-Supervised Data Labeling (Tri-Training, Label Propagation), Traditional ML Baselines (KNN, Decision Tree, Logistic Regression, Random Forest), & Optimization Regressors (Linear/Polynomial Regression).
+
+Every team member has an active, code-heavy role. To ensure a balanced workflow, every person works on a major algorithm suite, with Harsha handling the PyTorch engine core and other members writing preprocessing pipelines, semi-supervised filters, traditional ML models, regressors, and the user interface.
+
+---
+
+## 👥 Shared Responsibilities (All Members)
+*   **Report**: Every member writes 2–3 pages describing their own module design, equations used, and structural code logic.
+*   **Slides**: Every member designs 2–3 slides presenting their module's implementation.
+*   **Code Integrity**: Every member must follow uniform docstring and code standards.
+
+---
+
+## 🏗️ Roles and Responsibilities
+
+### 📦 Member 1: Data Pipeline & Semi-Supervised Text Sanitizer 
+**Role**: Preprocess raw documents and apply semi-supervised models to filter high-quality text for training.
+**Estimated Code Weight**: 🔵 🔵 🔵 🔵 ⚪ (Heavy)
+
+**What you write**:
+1.  `preprocess.py`: Clean raw documents in `data/raw/`, remove unrecognized characters, format strings, and output standard lines.
+2.  `text_sanitizer.py`: 
+    *   Build character-level n-gram frequency matrices for sentences.
+    *   Implement **Label Propagation** and **Label Spreading** to classify sentences as "high-quality training text" (1) or "noisy/junk text" (0).
+    *   Seed the similarity graphs with a small set of manually labeled clean/junk sentences, propagating those labels across the unlabeled text dataset.
+3.  `split_data.py` & `data_stats.json`: Split clean sentences into `data/train.txt` (90%) and `data/val.txt` (10%) and output dataset stats.
+
+**💡 Example Task Workflow**:
+Sibling A finds text files (e.g. online public-domain textbook files or code snippets) and downloads them to `data/raw/`. They write `preprocess.py` to strip out HTML tags, unwanted line breaks, and garbage characters. Since the text contains noisy formatting, they seed `text_sanitizer.py` by manually marking 10 lines as "clean" and 10 lines as "junk". The **Label Propagation** algorithm automatically propagates these labels across the remaining 980 lines, filtering the garbage out automatically to build the clean training corpus.
+
+---
+
+### 📊 Member 2: Traditional ML Baseline & Tri-Training Specialist
+**Role**: Frame text completion as a classification task and build tri-training filtering systems.
+**Estimated Code Weight**: 🔵 🔵 🔵 🔵 🔵 (Very Heavy)
+
+**What you write**:
+1.  `traditional_baselines.py`:
+    *   Frame next-character prediction as a classification task.
+    *   Build a **KNN Classifier**, a **Decision Tree Classifier**, and a **Logistic Regression** model using `scikit-learn`.
+    *   Encode character history contexts (windows of size $N$) into one-hot numeric vectors, training the models to predict the next character's ID.
+2.  `tri_training_filter.py`:
+    *   Implement a custom **Tri-Training** algorithm.
+    *   Split sentence features into 3 views: lexical complexity, punctuation ratios, and formatting patterns.
+    *   Train 3 classifiers (Logistic Regression, KNN, Decision Tree) to cooperatively pseudo-label unlabeled sentences as "useful" or "noise".
+3.  `random_forest_referee.py`:
+    *   Train a **Random Forest Classifier** as an ensemble baseline to compare against the semi-supervised Tri-Training output.
+
+**💡 Example Task Workflow**:
+Sibling B takes the clean text corpus and builds traditional ML alternatives. If the prompt context is `"pytho"`, they convert `"p", "y", "t", "h", "o"` into one-hot indices. They train a **KNN Classifier** and a **Decision Tree Classifier** to predict that the next character ID should be `"n"`. They also configure the **Tri-Training** script, dividing sentence features into word-length statistics, punctuation ratios, and capitalization indicators, cooperatively filtering and auto-labeling text records.
+
+---
+
+### 📉 Member 4: Model Performance Regressor & Evaluator (Member 4)
+**Role**: Build forecasting models for hyperparameter tuning and write performance benchmarks.
+**Estimated Code Weight**: 🔵 🔵 🔵 🔵 ⚪ (Heavy)
+
+**What you write**:
+1.  `performance_forecaster.py`:
+    *   Implement **Linear Regression**, **Polynomial Regression**, and **KNN Regressor** using `scikit-learn`.
+    *   Predict the autocomplete model's final validation loss and execution time based on parameters: `[vocab_size, embedding_dimension, context_block_size, batch_size, learning_rate]`.
+2.  `benchmark_compare.py`:
+    *   Compute validation metrics: Accuracy, F1-Score, Cross-Entropy Loss, and parameter footprint.
+    *   Directly compare Harsha's Neural Network to Sibling B's traditional models (KNN, Decision Tree, Logistic Regression).
+3.  `plotting_engine.py`:
+    *   Generate regression curves, training convergence histories, and ROC-AUC comparisons using `matplotlib` and `seaborn`.
+
+**💡 Example Task Workflow**:
+Member 4 runs several tests of the neural network with different hyperparameters (e.g. Model Size=32 takes 2 minutes, Model Size=64 takes 8 minutes). They use **Polynomial Regression** on these run logs to forecast training speed for larger sizes. They run `benchmark_compare.py` to compare Harsha's neural net predictions with Sibling B's Decision Tree predictions, producing validation loss comparison charts.
+
+---
+
+### 💻 Member 5: Live API Dashboard & Autocomplete Interface (Member 5)
+**Role**: Create the user-facing web dashboard, API service layers, and validation simulation assets.
+**Estimated Code Weight**: 🔵 🔵 🔵 🔵 ⚪ (Heavy)
+
+**What you write**:
+1.  `app_dashboard.py`:
+    *   Create a clean, interactive dashboard (using Dash or Streamlit) showing:
+        *   An interactive text area where users type a prompt and get real-time autocompletes from Harsha's engine.
+        *   A side-by-side completion comparison: PyTorch Model vs. Traditional Baselines (KNN/Decision Tree).
+        *   Live visual charts for training statistics and hyperparameter forecasting curves.
+2.  `api_server.py`:
+    *   A FastAPI backend serving endpoints: `/autocomplete` (neural net), `/autocomplete-baseline` (traditional baselines), `/stats`, and `/predict-train-time`.
+3.  `setup.sh` & `test_client.py`:
+    *   Write a setup script to configure python virtual environments and dependencies.
+    *   Create a concurrent testing script to simulate live users sending predictions to the API.
+
+**💡 Example Task Workflow**:
+Member 5 designs a web page. When a user types `"Machin"` in the text box, the frontend triggers a background API call to the FastAPI server (`/autocomplete?prompt=Machin`). The server routes this prompt to Harsha's trained PyTorch model and Sibling B's Decision Tree model, outputting the completions side-by-side (e.g., Neural Net predicts `"e learning"` vs. KNN predicts `"e room"`) along with prediction speed charts.
+
+---
+
+### 🧠 Member 3: Harsha (Core Engine Architect & Integrator)
+**Role**: Maintain global configs, PyTorch dataset loaders, model architectures, and core pipelines.
+**Estimated Code Weight**: 🔵 🔵 🔵 🔵 🔵 (Very Heavy)
+
+**What you write**:
+1.  `engine/config.py`: Global hyperparameter configuration layouts.
+2.  `engine/tokenizer.py`: Character-level encoding/decoding maps.
+3.  `engine/dataset.py`: PyTorch windowed sequence loader.
+4.  `engine/model.py`: Embeddings and Linear transformation layers (PyTorch model framework).
+5.  `engine/train.py` & `engine/generate.py`: Standard loss optimization loop and prompt sampling predictions.
+6.  `main.py`: The entry-point script coordinating Sibling A's cleaned data splits, launching training, exporting history, and passing results.
+
+**💡 Example Task Workflow**:
+Harsha writes the core PyTorch model. He sets up `engine/model.py` which contains the position embeddings, hidden linear layers, and cross-entropy loss calculations. He codes the optimization training loop in `engine/train.py` using the `AdamW` optimizer, calculating weights backpropagation, and generating predictions using logits softmax sampling inside `engine/generate.py`.
+
+---
+
+## 📅 Target Integration Path
+
+```mermaid
+gantt
+    title AutoLingo Sprint & Integration Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 1: Setup
+    Data Cleaning & Label Propagation (M1)   :active, 2026-06-15, 2d
+    Core Config & Tokenizer (M3)             :active, 2026-06-15, 2d
+    section Phase 2: Core ML
+    Traditional KNN/DT/LR Baselines (M2)    :2026-06-17, 2d
+    PyTorch Model Architecture (M3)          :2026-06-17, 2d
+    Performance Regressors & Plots (M4)      :2026-06-17, 2d
+    section Phase 3: Integration
+    FastAPI & Streamlit Dashboard (M5)       :2026-06-19, 2d
+    Orchestration & Final Testing (M3, All)  :2026-06-19, 2d
+```
+
+---
+
+## ⚙️ How the Complete System Works (End-to-End Execution Flow)
+
+Once all team members complete their files, the integrated system runs in this sequence:
+
+```
+[Raw Text Corpus] (M1)
+       │
+       ▼ (Cleans & removes garbage using Label Propagation)
+[Cleaned data/train.txt] (M1)
+       │
+       ├─────────────────────────┐
+       ▼                         ▼
+[PyTorch TextPredictor] (M3)   [KNN & Decision Tree Classifiers] (M2)
+       │                         │
+       ▼ (Trains neural net)     ▼ (Trains classical models)
+[checkpoints/model.pt]          [baseline_models.pkl]
+       │                         │
+       └──────────┬──────────────┘
+                  ▼
+          [benchmark_compare.py] (M4) ◄─── (Fitter for hyperparameter regressors)
+                  │
+                  ▼ (Produces loss curves & speed charts)
+          [results/plots.png] 
+                  │
+                  ▼ (Loaded into live API)
+          [FastAPI & Web UI Dashboard] (M5) ◄─── (Accepts live user keystrokes)
+```
+
+1.  **Ingestion & Labeling (Sibling A)**: Clean source text files are loaded, junk characters are stripped, and **Label Propagation** filters out non-standard sentences. The clean data is exported as `data/train.txt`.
+2.  **Model Training (Harsha & Sibling B)**:
+    *   Harsha runs `main.py` to train the PyTorch Embedding-to-Linear neural net.
+    *   Sibling B runs `traditional_baselines.py` to train the KNN and Decision Tree classifiers on the same text.
+3.  **Benchmarking & Forecasting (Member 4)**: The PyTorch predictions and the traditional ML baseline predictions are sent to Member 4's benchmark script. It calculates evaluation metrics and fits a polynomial regression curve of hyperparameter dimensions vs training latency.
+4.  **Interactive Deployment (Member 5)**: The FastAPI server loads the trained models. The dashboard allows live testing, showing the autocomplete suggestions of the PyTorch neural network compared side-by-side with the traditional ML models as you type.

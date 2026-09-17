@@ -1,0 +1,22 @@
+[
+  {
+    "name": "KNN Classifier (Sibling B)",
+    "accuracy": 0.2752,
+    "f1": 0.1132
+  },
+  {
+    "name": "Decision Tree (Sibling B)",
+    "accuracy": 0.3961,
+    "f1": 0.238
+  },
+  {
+    "name": "Label Propagation (Sibling A)",
+    "accuracy": 0.4048,
+    "f1": 0.2662
+  },
+  {
+    "name": "PyTorch Neural Net",
+    "accuracy": 0.2058,
+    "f1": 0.2564
+  }
+]
